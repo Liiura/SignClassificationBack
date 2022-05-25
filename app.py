@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 import cv2
 UPLOAD_FOLDER = './images'
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', }
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', }
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -28,8 +28,8 @@ def uploadImage():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             scaleImage(filename)
             imageResized = convertImageToCsvPandas(filename)
-            ClassificImage(imageResized)
-            return jsonify({ 'message': 'File uploaded successfully' })
+            imageClassifiedMessage = ClassificImage(imageResized)
+            return jsonify({ 'message': imageClassifiedMessage })
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -53,6 +53,7 @@ def ClassificImage(some_letter):
     with open('./model/model_pickle.pkl','rb') as file:
         mp = pickle.load(file)
     sign_pred = mp.predict([some_letter])
-    print("the prediction was",classification[int(sign_pred)])
+    print(sign_pred)
+    return "the prediction was "+classification[int(sign_pred)]
 if __name__ == "__main__":
     app.run(debug = True, port=3001)
